@@ -8,6 +8,10 @@ export const fmt = {
   bn: (v, decimals = 2) =>
     `₹${(v / 1e9).toFixed(decimals)} Bn`,
 
+  /** ₹ 1,234.56 Cr  (raw value in INR) */
+  cr: (v, decimals = 2) =>
+    `₹${(v / 1e7).toFixed(decimals)} Cr`,
+
   /** ₹ 1,234.56 Mn */
   mn: (v, decimals = 2) =>
     `₹${(v / 1e6).toFixed(decimals)} Mn`,

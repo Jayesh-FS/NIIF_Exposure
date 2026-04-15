@@ -12,6 +12,10 @@ export default function Overview({ data }) {
 
   const { kpis: k, computed: c, product_types, timeseries, rate_dist, tenor_dist } = {
     kpis: {
+      total_sanction: data.render_state.totals.total_sanction,
+      total_exposure: data.render_state.totals.total_exposure,
+      total_prin_rec: data.render_state.totals.total_prin_rec,
+      total_os_amt: data.render_state.totals.total_os_amt,
       sanction_amt: data.render_state.totals.total_sanction,
       outstanding_amt: data.render_state.totals.total_os_amt,
       loan_amt: data.render_state.totals.loan_amt,
@@ -57,36 +61,39 @@ export default function Overview({ data }) {
       <div className="four-col">
         <KpiCard
           label="Total Sanction"
-          value={fmt.bn(k.sanction_amt)}
+          value={fmt.cr(k.total_sanction)}
           sub={`${fmt.int(c.total_records)} records · ${fmt.int(c.unique_proposals)} proposals`}
           footer={`${c.unique_groups} Borrower Groups · ${c.unique_customers} Customers`}
           sparkPct={100}
           accent="c1"
         />
-        <KpiCard
-          label="Outstanding Amount"
-          value={fmt.bn(k.outstanding_amt)}
-          sub={`Disbursed: ${fmt.bn(k.loan_amt)}`}
-          footer={`Principal Received: ${fmt.bn(k.principal_received)}`}
-          sparkPct={k.sanction_amt > 0 ? (k.outstanding_amt / k.sanction_amt) * 100 : 0}
-          accent="c2"
-        />
+
         <KpiCard
           label="Total Exposure"
-          value={fmt.bn(k.exposure_amt)}
-          sub={`Interest Due: ${fmt.bn(k.interest_due)} accrued`}
-          footer={`Upcoming Interest: ${fmt.bn(k.upcoming_int)}`}
-          sparkPct={k.sanction_amt > 0 ? (k.exposure_amt / k.sanction_amt) * 100 : 0}
+          value={fmt.cr(k.total_exposure)}
+          sub={`Disbursed: ${fmt.cr(k.loan_amt)}`}
+          footer={`Principal Received: ${fmt.cr(k.principal_received)}`}
+          sparkPct={k.total_sanction > 0 ? (k.total_exposure / k.total_sanction) * 100 : 0}
+          accent="c2"
+        />
+
+        <KpiCard
+          label="Principal Received"
+          value={fmt.cr(k.total_prin_rec)}
+          sub={`Total Records: ${fmt.int(c.total_records)}`}
+          footer={`Unique Customers: ${fmt.int(c.unique_customers)}`}
+          sparkPct={k.total_sanction > 0 ? (k.total_prin_rec / k.total_sanction) * 100 : 0}
           accent="c3"
         />
-        <KpiCard
-          label="Avg Interest Rate"
-          value={fmt.pct(c.avg_rate)}
-          sub={`Range: ${c.min_rate}% – ${c.max_rate}% p.a.`}
-          footer={`Avg Tenor: ${c.avg_tenor_yrs} years`}
-          sparkPct={rateSparkPct}
-          accent="c4"
-        />
+
+      <KpiCard
+        label="Outstanding Amount"
+        value={fmt.cr(k.total_os_amt)}
+        sub={`Borrower Groups: ${fmt.int(c.unique_groups)}`}
+        footer={`Total Exposure: ${fmt.cr(k.total_exposure)}`}
+        sparkPct={k.total_sanction > 0 ? (k.total_os_amt / k.total_sanction) * 100 : 0}
+        accent="c4"
+      />
       </div>
 
       <div className="section-label">Disbursement Activity Trend</div>

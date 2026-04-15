@@ -77,15 +77,15 @@ export const dashboardApi = {
     )
   },
 
-  getGroups: (params = {}) => api.get('/groups', { params }),
+  // getGroups: (params = {}) => api.get('/groups', { params }),
 
-  getCustomers: (params = {}) => api.get('/customers', { params }),
+  // getCustomers: (params = {}) => api.get('/customers', { params }),
 
-  getTransactions: (params = {}) => api.get('/transactions', { params }),
+  // getTransactions: (params = {}) => api.get('/transactions', { params }),
 
-  getInsightsContext: () => api.get('/insights/context'),
+  // getInsightsContext: () => api.get('/insights/context'),
 
-  generateInsights: (context) => api.post('/insights', { context }),
+  // generateInsights: (context) => api.post('/insights', { context }),
 }
 
 export default api
