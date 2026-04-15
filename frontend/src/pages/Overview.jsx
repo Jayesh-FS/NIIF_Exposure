@@ -41,14 +41,52 @@ export default function Overview({ data }) {
     ? ((c.avg_rate - c.min_rate) / (c.max_rate - c.min_rate)) * 100
     : 50
 
-  const productDonut = useMemo(() =>
-    product_types.map((p) => ({ name: p.label.replace(' - Disbursements', ''), value: p.outstanding_bn })),
-  [product_types])
+  // const productDonut = useMemo(() =>
+  //   product_types.map((p) => ({ name: p.label.replace(' - Disbursements', ''), value: p.outstanding_bn })),
+  // [product_types])
+
+const productDonut = useMemo(() => {
+  const products = data?.render_state?.products || []
+
+  console.log("ACTUAL PRODUCTS:", products)
+
+  if (!products.length) return []
+
+  return products.map((p) => {
+    const label = (p.zprd_desc || '').toUpperCase()
+
+    let name = 'OTHER'
+    if (label.includes('TL')) name = 'TL'
+    else if (label.includes('DEB')) name = 'DEB'
+
+    const raw = parseFloat(p.zos_amt)
+
+    return {
+      name,
+      value: parseFloat((raw / 1e7).toFixed(2)) // CR
+    }
+  })
+}, [data])
+
+  // const collectionDonut = useMemo(() => [
+  //   { name: 'Principal Received', value: parseFloat((k.principal_received / 1e9).toFixed(2)) },
+  //   { name: 'Interest Received',  value: parseFloat((k.interest_received / 1e9).toFixed(2)) },
+  //   { name: 'Remaining O/S',      value: parseFloat(((k.outstanding_amt - k.principal_received) / 1e9).toFixed(2)) },
+  // ], [k])
 
   const collectionDonut = useMemo(() => [
-    { name: 'Principal Received', value: parseFloat((k.principal_received / 1e9).toFixed(2)) },
-    { name: 'Interest Received',  value: parseFloat((k.interest_received / 1e9).toFixed(2)) },
-    { name: 'Remaining O/S',      value: parseFloat(((k.outstanding_amt - k.principal_received) / 1e9).toFixed(2)) },
+    {
+      name: 'Principal Received',
+      value: parseFloat((k.principal_received / 1e7).toFixed(2))
+    },
+    {
+      name: 'Interest Received',
+      value: parseFloat((k.interest_received / 1e7).toFixed(2))
+    },
+    {
+      name: 'Remaining O/S',
+      value: parseFloat(((k.outstanding_amt - k.principal_received) / 1e7).toFixed(2))
+    },
   ], [k])
 
   const tenorChartData = tenor_dist.map((t) => ({ label: t.label, count: t.count }))
@@ -133,23 +171,23 @@ export default function Overview({ data }) {
       <div className="section-label">Portfolio Distribution</div>
       <div className="two-col">
         <div className="chart-card">
-          <div className="chart-title">Product Type Mix</div>
-          <div className="chart-subtitle">OUTSTANDING ₹ BN · TL vs DEB</div>
+          <div className="chart-title">Product Type Split</div>
+          <div className="chart-subtitle">TL vs DEB — BY OUTSTANDING</div>
           <DonutChart
             data={productDonut}
             colors={['#1565c0', '#00acc1']}
             height={220}
-            formatter={(v) => `₹${v} Bn`}
+            formatter={(v) => `₹${(v || 0).toFixed(2)} Cr`}
           />
         </div>
         <div className="chart-card">
           <div className="chart-title">Collection Breakdown</div>
-          <div className="chart-subtitle">₹ BN · PRINCIPAL / INTEREST / REMAINING</div>
+          <div className="chart-subtitle">PRINCIPAL & INTEREST RECEIVED</div>
           <DonutChart
             data={collectionDonut}
             colors={['#2e7d32', '#43a047', '#e53935']}
             height={220}
-            formatter={(v) => `₹${v} Bn`}
+            formatter={(v) => `₹${v} Cr`}
           />
         </div>
       </div>
