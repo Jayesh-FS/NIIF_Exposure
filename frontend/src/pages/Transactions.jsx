@@ -64,10 +64,6 @@ export default function Transactions({ data }) {
     usePaginatedData(fetcher, { per_page: 20 })
 
   // Charts — groups sorted by sanction & principal
-  const grpFetcher = useCallback((p) => dashboardApi.getGroups({ ...p, per_page: 20 }), [])
-  const { rows: sancGroups } = usePaginatedData(
-    useCallback((p) => dashboardApi.getGroups({ ...p, per_page: 20, sort_by: 'sanction_amt', sort_dir: 'desc' }), []), {}
-  )
   const { rows: collGroups } = usePaginatedData(
     useCallback((p) => dashboardApi.getGroups({ ...p, per_page: 20, sort_by: 'principal_received', sort_dir: 'desc' }), []), {}
   )
@@ -82,8 +78,11 @@ export default function Transactions({ data }) {
   const prodDonut = product_types.map((p) => ({ name: p.label.replace(' - Disbursements', ''), value: p.count }))
 
   const grpSancData = useMemo(() =>
-    sancGroups.slice(0, topN.group).map((g) => ({ name: g.group_name, value: parseFloat((g.sanction_amt / 1e9).toFixed(2)) })),
-  [sancGroups, topN.group])
+    (data.render_state.bpSummary || [])
+      .sort((a, b) => b.sanction_amt - a.sanction_amt)
+      .slice(0, topN.group)
+      .map((g) => ({ name: g.bp_group, value: parseFloat((g.sanction_amt / 1e7).toFixed(2)) })),
+  [data.render_state.bpSummary, topN.group])
 
   const grpCollData = useMemo(() =>
     collGroups.slice(0, topN.coll).map((g) => ({ name: g.group_name, value: parseFloat((g.principal_received / 1e6).toFixed(2)) })),
@@ -175,9 +174,9 @@ export default function Transactions({ data }) {
       <div className="two-col">
         <div className="chart-card">
           <div className="chart-title">Top Groups by Sanction</div>
-          <div className="chart-subtitle">₹ BILLIONS</div>
+          <div className="chart-subtitle">₹ CRORES</div>
           <TopNSelector options={TOP_N_OPTIONS} value={topN.group} onChange={(n) => setTopN((p) => ({ ...p, group: n }))} />
-          <HorizontalBar data={grpSancData} dataKey="value" nameKey="name" color="var(--blue)" formatter={(v) => `₹${v}Bn`} />
+          <VerticalBar data={grpSancData} dataKey="value" nameKey="name" color="var(--blue)" formatter={(v) => `₹${v}Cr`} />
         </div>
         <div className="chart-card">
           <div className="chart-title">Top Groups by Principal Collected</div>
